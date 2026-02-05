@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from "react";
-import type { Video, VideoMetadata } from "../types";
+import type { Video, VideoMetadata, AnalysisResult } from "../types";
 import { createJob, uploadVideo, getJobStatus } from "../api";
 
 interface VideoContextType {
@@ -17,7 +17,7 @@ const VideoContext = createContext<VideoContextType | undefined>(undefined);
 export function VideoProvider({ children }: { children: React.ReactNode }) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const pollingIntervals = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const pollingIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   const activeUploads = useRef<Set<string>>(new Set());
   const MAX_CONCURRENT = 2;
 
@@ -172,7 +172,12 @@ export function VideoProvider({ children }: { children: React.ReactNode }) {
                   ...v,
                   status: "FAILED",
                   error: job.error || "Analysis failed",
-                  resultRaw: job.result || undefined, // May contain partial result even on failure
+                  resultRaw:
+                    typeof job.result === "string"
+                      ? job.result
+                      : job.result
+                      ? JSON.stringify(job.result)
+                      : undefined, // May contain partial result even on failure
                   videoS3Uri: job.videoS3Uri,
                 };
               } else if (job.status === "WAITING_FOR_UPLOAD") {

@@ -1,4 +1,3 @@
-import React from "react";
 import { useVideos } from "../context/VideoContext";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Clock, File } from "lucide-react";

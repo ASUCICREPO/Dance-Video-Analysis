@@ -16,7 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { formatFileSize, formatDuration, getVideoDuration } from "../utils";
-import { FIELD_MAPPINGS, getFieldsForSection, getDominantValue, type SectionName } from "../utils/fieldMapping";
+import { getFieldsForSection, getDominantValue, type SectionName } from "../utils/fieldMapping";
 import type { Segment } from "../types";
 import * as XLSX from "xlsx";
 
@@ -47,9 +47,6 @@ export function VideoDetailsPage() {
   const hasParseError = !!video.resultParseError;
   const segments = video.resultParsed?.segments || [];
   const videoSummary = video.resultParsed?.video_summary || "";
-  
-  // Get fields from first segment if available
-  const firstSegmentFields = segments.length > 0 ? segments[0].fields : {};
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +84,8 @@ export function VideoDetailsPage() {
   // Helper to render metadata sections
   const renderMetadataSection = (
     sectionName: SectionName,
-    Icon: React.ComponentType<{ size?: number }>,
+    // Lucide icons are ForwardRefExoticComponent<LucideProps>, so accept any component
+    Icon: React.ComponentType<any>,
     segments: Segment[],
     isExpanded: boolean
   ) => {
@@ -112,7 +110,7 @@ export function VideoDetailsPage() {
         </button>
         {isExpanded && (
           <div className="px-4 pb-4 space-y-2">
-            {sectionFields.map(([key, value]) => (
+            {sectionFields.map(([key]) => (
               <div key={key} className="flex justify-between">
                 <span className="text-gray-600">{key}:</span>
                 <span className="font-medium">
